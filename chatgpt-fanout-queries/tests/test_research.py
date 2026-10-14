@@ -89,18 +89,23 @@ class ResearchTests(unittest.TestCase):
 
     def test_sdk_request_and_complete_export(self):
         observed = []
+        client_options = []
         raw = json.dumps(fixture(), indent=3)
 
         def handler(request):
             observed.append(json.loads(request.content))
-            self.assertEqual(str(request.url), "https://api.openai.com/v1/responses")
+            self.assertEqual(str(request.url), "https://maas.afirstsoft.com/v1/responses")
             body = raw if len(observed) == 1 else json.dumps({"output": [{"type": "message", "content": [
                 {"type": "output_text", "text": "The search explored several approaches and cited technical documentation."}]}]})
             return httpx.Response(200, text=body, headers={"content-type": "application/json"})
 
-        client = OpenAI(api_key="test-key", http_client=httpx.Client(transport=httpx.MockTransport(handler)))
-        with tempfile.TemporaryDirectory() as folder, patch.dict(os.environ, {"OPENAI_API_KEY": "test-key"}), \
-                patch("geo_research.cli.OpenAI", return_value=client), \
+        def make_client(**options):
+            client_options.append(options)
+            return OpenAI(**options, http_client=httpx.Client(transport=httpx.MockTransport(handler)))
+
+        with tempfile.TemporaryDirectory() as folder, patch.dict(os.environ, {
+                "MAAS_API_KEY": "test-key", "MAAS_BASE_URL": "https://maas.afirstsoft.com/v1"}), \
+                patch("geo_research.cli.OpenAI", side_effect=make_client), \
                 contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(main(["question", "--output", folder,
                                    "--env-file", str(Path(folder) / "missing.env")]), 0)
@@ -110,9 +115,11 @@ class ResearchTests(unittest.TestCase):
             self.assertIn("The search explored several approaches and cited technical documentation.", (run / "report.html").read_text())
             self.assertNotIn("test-key", (run / "request.json").read_text())
         self.assertEqual(observed[0]["include"], ["web_search_call.action.sources"])
+        self.assertEqual(client_options[0]["api_key"], "test-key")
+        self.assertEqual(client_options[0]["base_url"], "https://maas.afirstsoft.com/v1")
         self.assertEqual(observed[0]["tools"], [{"type": "web_search"}])
         self.assertEqual(observed[0]["tool_choice"], "required")
-        self.assertEqual(observed[0]["model"], "gpt-6.1-sol")
+        self.assertEqual(observed[0]["model"], "gpt-6-astra")
         self.assertEqual(observed[1]["instructions"], OVERVIEW_INSTRUCTIONS)
         self.assertIn("natural English", observed[1]["instructions"])
         self.assertIn("Do not translate, paraphrase, summarize, or replace it.", observed[1]["instructions"])
@@ -129,7 +136,7 @@ class ResearchTests(unittest.TestCase):
         clients = [OpenAI(api_key="test-key", http_client=httpx.Client(transport=httpx.MockTransport(handler)))
                    for _ in range(2)]
         with tempfile.TemporaryDirectory() as folder, \
-                patch.dict(os.environ, {"OPENAI_API_KEY": "test-key", "OPENAI_MODEL": "gpt-env-model"}), \
+                patch.dict(os.environ, {"MAAS_API_KEY": "test-key", "MAAS_MODEL": "gpt-env-model"}), \
                 patch("geo_research.cli.OpenAI", side_effect=clients), \
                 contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(main(["question", "--output", folder]), 0)
@@ -155,7 +162,7 @@ class ResearchTests(unittest.TestCase):
                 client = OpenAI(api_key="secret-test-key", max_retries=0,
                                 http_client=httpx.Client(transport=httpx.MockTransport(handler)))
                 with tempfile.TemporaryDirectory() as folder, \
-                        patch.dict(os.environ, {"OPENAI_API_KEY": "secret-test-key"}), \
+                        patch.dict(os.environ, {"MAAS_API_KEY": "secret-test-key"}), \
                         patch("geo_research.cli.OpenAI", return_value=client), \
                         contextlib.redirect_stdout(io.StringIO()), \
                         contextlib.redirect_stderr(io.StringIO()) as stderr:
@@ -172,7 +179,7 @@ class ResearchTests(unittest.TestCase):
                 self.assertEqual(len(requests), 2)
 
     def test_missing_key_makes_no_request(self):
-        with tempfile.TemporaryDirectory() as folder, patch.dict(os.environ, {"OPENAI_API_KEY": ""}), \
+        with tempfile.TemporaryDirectory() as folder, patch.dict(os.environ, {"MAAS_API_KEY": ""}), \
                 patch("geo_research.cli.OpenAI") as client, contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(main(["question", "--env-file", folder + "/missing"]), 2)
             client.assert_not_called()
@@ -186,7 +193,7 @@ class ResearchTests(unittest.TestCase):
 
         client = OpenAI(api_key="secret-test-key", max_retries=0,
                         http_client=httpx.Client(transport=httpx.MockTransport(handler)))
-        with tempfile.TemporaryDirectory() as folder, patch.dict(os.environ, {"OPENAI_API_KEY": "secret-test-key"}), \
+        with tempfile.TemporaryDirectory() as folder, patch.dict(os.environ, {"MAAS_API_KEY": "secret-test-key"}), \
                 patch("geo_research.cli.OpenAI", return_value=client), \
                 contextlib.redirect_stderr(io.StringIO()) as stderr:
             self.assertEqual(main(["question", "--output", folder]), 1)

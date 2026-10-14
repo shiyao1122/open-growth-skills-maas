@@ -1,6 +1,6 @@
 ---
 name: chatgpt-fanout-queries
-description: Capture and analyze search queries, web-search calls, sources, citations, and answers exposed by the OpenAI Responses API. Use for GEO research or to examine how a question expands into web searches. This trace shows observable API output, not hidden ChatGPT internals or the ChatGPT web interface.
+description: Capture and analyze search queries, web-search calls, sources, citations, and answers exposed by the MaaS Responses API. Use for GEO research or to examine how a question expands into web searches. This trace shows observable API output, not hidden ChatGPT internals or the ChatGPT web interface.
 ---
 
 # ChatGPT Fan-out Queries
@@ -26,7 +26,7 @@ syntax. Relative `--output` and `--env-file` paths resolve from the working
 directory, not the skill directory.
 
 Honor user-supplied CLI options. Model selection follows this order: `--model`,
-`OPENAI_MODEL`, then `gpt-6.1-sol`. Use the default `--search-mode required`
+`MAAS_MODEL`, then `gpt-6-astra`. Use the default `--search-mode required`
 unless the user asks to let the model decide whether to search, in which case
 use `auto`.
 
@@ -55,9 +55,13 @@ python3 -m venv <venv-directory>
 Use that environment's Python to run the entry point. Do not overwrite an
 unrelated virtual environment.
 
-Live mode also requires network access, model access, and an `OPENAI_API_KEY`
-in the environment or the selected `.env` file. `OPENAI_MODEL` can set the
-default model. Environment variables take precedence over dotenv values.
+Live mode also requires network access, model access, and a `MAAS_API_KEY`
+in the environment or the selected `.env` file. `MAAS_MODEL` can set the
+default model, and `MAAS_BASE_URL` defaults to
+`https://maas.afirstsoft.com/v1`. The MaaS endpoint must support the OpenAI
+Responses API with `web_search` and expose search calls, sources, and citations
+for the original report to work. A `/v1/chat/completions` endpoint alone is
+insufficient. Environment variables take precedence over dotenv values.
 Never ask for a key in chat, print it, or write it to research artifacts.
 
 Do not automatically retry a live request. A timeout may occur after the server

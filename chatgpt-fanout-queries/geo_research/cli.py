@@ -73,9 +73,9 @@ def positive_int(value):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Capture the raw OpenAI web-search response, search queries, sources, and citations.")
+    parser = argparse.ArgumentParser(description="Capture the raw MaaS web-search response, search queries, sources, and citations.")
     parser.add_argument("query", help="Research question (enclose it in quotes)")
-    parser.add_argument("--model", help="Model ID; defaults to OPENAI_MODEL, then gpt-6.1-sol")
+    parser.add_argument("--model", help="Model ID; defaults to MAAS_MODEL, then gpt-6-astra")
     parser.add_argument("--output", type=Path, default=Path("research"))
     parser.add_argument("--env-file", type=Path, default=Path(".env"))
     parser.add_argument("--reasoning-effort", choices=["none", "low", "medium", "high", "xhigh"], default="low")
@@ -108,11 +108,12 @@ def main(argv=None):
             })
         else:
             load_dotenv(args.env_file, override=False)
-            key = os.getenv("OPENAI_API_KEY", "").strip()
+            key = os.getenv("MAAS_API_KEY", "").strip()
             if not key:
-                print("OPENAI_API_KEY is not set. Configure it in a local .env file or environment variable before running live research.", file=sys.stderr)
+                print("MAAS_API_KEY is not set. Configure it in a local .env file or environment variable before running live research.", file=sys.stderr)
                 return 2
-            model = args.model or os.getenv("OPENAI_MODEL", "").strip() or "gpt-6.1-sol"
+            model = args.model or os.getenv("MAAS_MODEL", "").strip() or "gpt-6-astra"
+            base_url = os.getenv("MAAS_BASE_URL", "").strip() or "https://maas.afirstsoft.com/v1"
             request = {
                 "model": model, "input": args.query,
                 "tools": [{"type": "web_search"}], "tool_choice": args.search_mode,
@@ -126,7 +127,7 @@ def main(argv=None):
             })
             print(f"Searching with {model}... Output directory: {run_dir}", file=sys.stderr)
             # Disable automatic retries to avoid silently repeating a paid research run.
-            with OpenAI(api_key=key, base_url="https://api.openai.com/v1",
+            with OpenAI(api_key=key, base_url=base_url,
                         timeout=args.timeout, max_retries=0) as client:
                 result = client.responses.with_raw_response.create(**request)
                 raw = result.text

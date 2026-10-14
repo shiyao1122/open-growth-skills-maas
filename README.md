@@ -14,7 +14,7 @@ collection currently contains two skills:
 | Skill | Use it for | Requirements |
 | --- | --- | --- |
 | [long-blog-to-viral-social-posts](long-blog-to-viral-social-posts/SKILL.md) | Turn one substantive article into three differentiated LinkedIn/X posts, with audience fit, source-grounded hooks and first-comment CTAs; optionally create a visual after selection. | Article text, file or accessible URL. Browsing for current rules/trends; an image or design tool for requested visuals. |
-| [chatgpt-fanout-queries](chatgpt-fanout-queries/SKILL.md) | Capture visible search queries, tool calls, sources, citations and answers from the OpenAI Responses API into a local HTML report. | Python 3.10+ and package dependencies. Live research also requires network access, an API key and model access. |
+| [chatgpt-fanout-queries](chatgpt-fanout-queries/SKILL.md) | Capture visible search queries, tool calls, sources, citations and answers from the MaaS Responses API into a local HTML report. | Python 3.10+ and package dependencies. Live research also requires network access, a MaaS API key, model access, and MaaS support for the Responses API and `web_search`. |
 
 ## Install
 

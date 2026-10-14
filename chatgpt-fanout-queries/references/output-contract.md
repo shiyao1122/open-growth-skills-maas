@@ -8,7 +8,7 @@ The required positional input is one non-empty question. Preserve it verbatim wh
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `--model` | `OPENAI_MODEL`, then `gpt-6.1-sol` | Responses API model; explicit flag takes precedence |
+| `--model` | `MAAS_MODEL`, then `gpt-6-astra` | Responses API model; explicit flag takes precedence |
 | `--output` | `research` | Parent directory for the new run |
 | `--env-file` | `.env` | Local dotenv file; process environment takes precedence |
 | `--reasoning-effort` | `low` | `none`, `low`, `medium`, `high`, or `xhigh` |
@@ -18,7 +18,7 @@ The required positional input is one non-empty question. Preserve it verbatim wh
 | `--from-response` | unset | Reparse an existing raw Responses API JSON file without an API call |
 | `--no-model-overview` | false | Skip the second, tool-free model request for a English overview |
 
-Live search requests use one `web_search` tool, request `web_search_call.action.sources`, set `store=false`, and do not retry automatically. By default, live mode then sends a second tool-free request to the same model for an overview. Offline mode never calls the API. Relative output and dotenv paths resolve from the current working directory.
+Live search requests use one `web_search` tool, request `web_search_call.action.sources`, set `store=false`, and do not retry automatically. The OpenAI SDK points to `MAAS_BASE_URL` (default `https://maas.afirstsoft.com/v1`) and authenticates with `MAAS_API_KEY`. By default, live mode then sends a second tool-free request to the same model for an overview. Offline mode never calls the API. Relative output and dotenv paths resolve from the current working directory.
 
 ## Run Directory
 

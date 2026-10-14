@@ -12,7 +12,7 @@
 | Skill | 用途 | 运行要求 |
 | --- | --- | --- |
 | [long-blog-to-viral-social-posts](long-blog-to-viral-social-posts/SKILL.md) | 将一篇有实质内容的长文改写为三条差异化 LinkedIn/X 帖子，包含受众定位、忠于原文的 Hook 和首评 CTA；选定内容后可制作视觉。 | 文章正文、文件或可访问 URL。核验最新规则和热点需要浏览能力；制作视觉需要图像或设计工具。 |
-| [chatgpt-fanout-queries](chatgpt-fanout-queries/SKILL.md) | 采集 OpenAI Responses API 返回的可见搜索词、工具调用、来源、引用和回答，生成本地 HTML 报告。 | Python 3.10+ 和依赖包。在线研究还需要网络、API Key 和模型访问权限。 |
+| [chatgpt-fanout-queries](chatgpt-fanout-queries/SKILL.md) | 采集 MaaS 的 Responses API 返回的可见搜索词、工具调用、来源、引用和回答，生成本地 HTML 报告。 | Python 3.10+ 和依赖包。在线研究还需要网络、MaaS API Key、模型访问权限，以及 MaaS 对 Responses API 和 `web_search` 的支持。 |
 
 ## 安装
 
